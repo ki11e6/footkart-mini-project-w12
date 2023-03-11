@@ -46,6 +46,6 @@ app.use(
 app.use('/admin', adminrouter);
 app.use('/', userrouter);
 app.use(errorController.get404);
-app.listen(4000, () => {
-  console.log(`server running on http://localhost:4000`);
+app.listen(3000, () => {
+  console.log(`server running on http://localhost:3000`);
 });
