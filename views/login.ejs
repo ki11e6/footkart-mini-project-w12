@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('./partials/head') %>
+
+  <body class="d-flex flex-column min-vh-100 adminlogbg">
+
+    <%- include('./partials/top-navbar')%>
+
+
+      <div class="container-fluid d-flex justify-content-center ">
+        <div class="row mt-5 bg-dark rounded-4">
+          <div class="col-sm-6 text-white p-4">
+            <form action="/login" method="POST" style="width: 23rem;">
+              <h3 class=" login fw-bold mt-5 mb-3 pb-3 text-center ">Log In</h3>
+              <p class="text-danger text-center ">
+                <%= message %>
+              </p>
+
+              <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp"
+                  placeholder="Enter Email address" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password " name="password" placeholder="Enter Password"
+                  required>
+              </div>
+
+              <p class="mb-2 "><a class="forget text-warning" href="/forgot-password">forgot password?</a></p>
+              <div class="mb-4 d-flex justify-content-center btn-lg">
+                <button class="btn bg-success login-btn m-auto px-5 py-1 rounded-pill fs-3 text-light" type="submit"
+                  name="submit" id="submit">
+                  Login
+                </button>
+              </div>
+
+              <p>
+                Don't have an account?
+                <a href="/register" class="linkinfo text-decoration-none fs-4 text-info">
+                  Register</a>
+              </p>
+            </form>
+            <div></div>
+            <div></div>
+
+          </div>
+        </div>
+      </div>
+
+      <%- include('./partials/bottom-navbar') %>
+
+
+  </body>
+
+</html>

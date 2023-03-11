@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head') %>
+
+  <body class="d-flex flex-column min-vh-100">
+    <%- include('../../partials/admin/dash-navbar')%>
+      <div class="d-flex justify-content-between">
+
+        <h2 class="p-3"><i>Product Details</i></h2>
+
+        <a href="/admin/products/addproducts" class=""><button class=" btn btn-info btn-lg w-20 boder-2 m-3">Add
+            Product</button></a>
+      </div>
+
+      <section class="container bg-light p-5 rounded-3">
+        <div class="row border border-secondary p-3 rounded-3">
+          <div class=" col-12 table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th class="fs-6" scope="col">No</th>
+                  <th class="fs-6" scope="col">Name</th>
+                  <th class="fs-6" scope="col">Price</th>
+                  <th class="fs-6" scope="col">Category</th>
+                  <th class="fs-6" scope="col">Colour</th>
+                  <th class="fs-6" scope="col">Size</th>
+                  <th class="fs-6" scope="col">Total Stock</th>
+                  <!-- <th class="fs-6" scope="col">Description</th> -->
+                  <th class="fs-6" scope="col">Images</th>
+                  <th class="fs-6" scope="col">Update</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if(products.length>0) { %>
+                  <% var count=1 %>
+                    <% products.forEach(item=>{ %>
+
+                      <tr>
+                        <th scope="row">
+                          <%= count++ %>
+                        </th>
+                        <td class="">
+                          <%= item.productname %>
+                        </td>
+                        <td class="">
+                          <%= item.price %>
+                        </td>
+                        <td class="">
+                          <%= item.categoryId?.categoryname %>
+                        </td>
+                        <td class="">
+                          <%= item.color %>
+                        </td>
+                        <td class="">
+                          <%= item.size %>
+                        </td>
+                        <td class="">
+                          <%= item.totalStoke %>
+                        </td>
+                        <!-- <td class="">
+                          <%= item.description %>
+                        </td> -->
+                        <td class=""><img class="image" src="/<%= item.images[0] %>" alt=""></td>
+                        <td class=""><a href="/admin/products/editproducts/<%=item._id %> "><button
+                              class="btn btn-warning border-2 w-100 fw-bold">Edit</button></a></td>
+                        <td class="">
+                          <div>
+                            <button class="btn btn-danger border-2 fw-bold" data-bs-toggle="modal"
+                              data-bs-target="#staticBackdrop<%=count %>">Delete</button>
+
+
+                            <div class="modal fade" id="staticBackdrop<%=count%>" data-bs-backdrop="static"
+                              data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+                              aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Product</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                      aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    Do you want to remove?
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                                    <button type="button" class="btn btn-danger" id="delete<%= count %>"
+                                      onclick="deleteProduct(this.id)" data-url="<%= item._id %>">Delete</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                        </td>
+                      </tr>
+
+
+                      <% }) %>
+                        <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <%- include('../../partials/bottom-navbar') %>
+        <script src="/script/scriptadmin.js"></script>
+  </body>
+
+</html>
