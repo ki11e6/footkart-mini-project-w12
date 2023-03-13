@@ -14,7 +14,7 @@ router.get('/categories', session.isLogged, adminControls.getCategories);
 
 router.get('/users', session.isLogged, adminControls.getUsers);
 
-router.put('/userdata/:id', adminControls.blockUser);
+router.put('/userdata/:id', session.isLogged, adminControls.blockUser);
 
 router.patch('/categories/:id', session.isLogged, adminControls.deleteCategory);
 router.patch('/coupons/:id', session.isLogged, adminControls.deleteCoupon);
@@ -64,14 +64,19 @@ router.get('/coupon', session.isLogged, adminControls.getCoupon);
 
 router.get('/order-details', session.isLogged, adminControls.getOrderDetails);
 
-router.get('/sale-details', adminControls.getSalesDetails);
+router.get('/sale-details', session.isLogged, adminControls.getSalesDetails);
 
-router.get('/sales-report/pdf', adminControls.salesReportPdf);
-router.get('/sales-report/excel', adminControls.salesReportExcel);
+router.get('/sales-report/pdf', session.isLogged, adminControls.salesReportPdf);
+router.get(
+  '/sales-report/excel',
+  session.isLogged,
+  adminControls.salesReportExcel
+);
 //
-router.get('/banner', bannerController.getBannersPage);
+router.get('/banner', session.isLogged, bannerController.getBannersPage);
 router.post(
   '/banner',
+  session.isLogged,
   upload.fields([
     { name: 'banner1', maxCount: 1 },
     { name: 'banner2', maxCount: 1 },

@@ -12,13 +12,9 @@ router.get('/register', session.notLogged, userControls.getRegister);
 router.get('/', session.notLogged, userControls.getLandingpage);
 router.get('/home', session.isLogged, userControls.getHomepage);
 router.get('/productdetails', session.isLogged, userControls.getProductdetails);
-router.get(
-  '/product/details/:id',
-  session.isLogged,
-  userControls.getDetailspage
-);
+router.get('/product/details/:id', userControls.getDetailspage);
 router.get('/cart', session.isLogged, cartControls.getCart);
-router.get('/register/resend', userControls.resendOtp);
+router.get('/register/resend', session.notLogged, userControls.resendOtp);
 
 router.get('/logout', userControls.getUserlogout);
 router.get('/adddetails', session.isLogged, userControls.getadddetails);
@@ -57,7 +53,11 @@ router.post(
   paymentControls.placeorderCod
 );
 router.post('/add/address', session.isLogged, userControls.addAddress);
-router.post('/payment/razorpay', paymentControls.placeorderRazorpay);
+router.post(
+  '/payment/razorpay',
+  session.isLogged,
+  paymentControls.placeorderRazorpay
+);
 router.post(
   '/create-paypalorder',
   session.isLogged,
