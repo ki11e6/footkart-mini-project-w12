@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head')%>
+
+    <body class="d-flex flex-column min-vh-100">
+        <%- include('../partials/admin/dash-navbar') %>
+            <h2 class="p-3"><i>Banners</i></h2>
+
+            <section class="container bg-light p-5 rounded-3">
+                <form action="/banner" method="post" enctype="multipart/form-data">
+                    <div class="row border border-secondary p-3 rounded-3">
+                        <div class="mb-2">
+                            <label for="banner" class="form-label fw-bold fs-5">Upload Banners</label>
+                            <input class="form-control border-2 border-secondary m-2" type="file" id="banner1"
+                                name="banner1">
+                            <input class="form-control border-2 border-secondary m-2" type="file" id="banner2"
+                                name="banner2">
+                            <input class="form-control border-2 border-secondary m-2" type="file" id="banner3"
+                                name="banner3">
+                        </div>
+                    </div>
+                    <div class=" ">
+                        <button class="btn btn-outline-success btn-lg mt-3 mb-3 " type="submit"> Add Banners</button>
+                    </div>
+                </form>
+
+                <div class="container mt-5 border border-secondary p-3 rounded-3">
+                    <h2>Active Banners</h2>
+                    <div class="d-flex justify-content-around">
+                        <img class="banner m-3" src="/<%= banners.image[0] %>" alt="" width="300px">
+                        <img class="banner m-3" src="/<%= banners.image[1] %>" alt="" width="300px">
+                        <img class="banner m-3" src="/<%= banners.image[2] %>" alt="" width="300px">
+                    </div>
+                </div>
+
+
+
+            </section>
+
+
+            <%- include('../partials/bottom-navbar') %>
+                <script src="/script/scriptadmin.js"></script>
+    </body>
+
+</html>

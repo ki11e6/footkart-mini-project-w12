@@ -5,6 +5,12 @@ const User = require('../models/user');
 const Orders = require('../models/order');
 const Coupons = require('../models/coupon');
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+const console = require('console');
+const {
+  Parser,
+  transforms: { unwind },
+} = require('json2csv');
 
 module.exports = {
   getAdminlogin: (req, res) => {
@@ -301,11 +307,8 @@ module.exports = {
     }
   },
   changeStatus: async (req, res) => {
-    console.log('asdfghjk');
     const id = req.body.id;
-    console.log(id);
     const status = req.body.value;
-    console.log(status);
     await Orders.findOneAndUpdate(
       { _id: id },
       {
@@ -389,6 +392,7 @@ module.exports = {
             _id: { $dayOfYear: '$createdAt' },
             date: { $first: '$createdAt' },
             totalSpent: { $sum: '$totalAmount' },
+            quantity: { $sum: '$items.quantity' },
           },
         },
         {
@@ -410,7 +414,9 @@ module.exports = {
       })
         .populate('customerId')
         .sort({ createdAt: -1 });
-      console.log('puppeteer orders');
+      orders.forEach((order) => {
+        console.log(order.customerId.username);
+      });
       res.render('admin/sales-details', { orders });
     } catch (err) {
       console.log(err);
@@ -418,14 +424,17 @@ module.exports = {
   },
 
   salesReportPdf: async (req, res) => {
-    // const browser = await puppeteer.launch();
-    const browser = await puppeteer.launch({
-      executablePath: '/usr/bin/chromium-browser',
-    });
+    const browser = await puppeteer.launch();
+    // const browser = await puppeteer.launch({
+    //   executablePath: '/usr/bin/chromium-browser',
+    // });
     const page = await browser.newPage();
-    await page.goto('https://footkart.shop/admin/sale-details', {
+    await page.goto('http://localhost:3000/admin/sale-details', {
       waitUntil: 'networkidle2',
     });
+    // await page.goto('https://footkart.shop/admin/sale-details', {
+    //   waitUntil: 'networkidle2',
+    // });
     await page.pdf({
       path: 'sales-details.pdf',
       format: 'a4',
@@ -434,5 +443,87 @@ module.exports = {
 
     await browser.close();
     res.download('sales-details.pdf', 'Sale Report.pdf');
+  },
+  salesReportExcel: async (req, res) => {
+    try {
+      const orders = await Orders.aggregate([
+        {
+          $unwind: '$items',
+        },
+        {
+          $addFields: {
+            currMonth: {
+              $month: new Date(),
+            },
+            docMonth: {
+              $month: '$createdAt',
+            },
+          },
+        },
+        {
+          $match: {
+            cancelled: false,
+            paymentVerified: true,
+            $expr: {
+              $eq: ['$currMonth', '$docMonth'],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'customerId',
+            foreignField: '_id',
+            pipeline: [
+              {
+                $project: {
+                  username: 1,
+                  email: 1,
+                },
+              },
+            ],
+            as: 'customerId',
+          },
+        },
+      ]);
+      console.log(orders);
+      const fields = [
+        {
+          label: 'Customer Name',
+          value: 'customerId.username',
+        },
+        {
+          label: 'Email',
+          value: 'customerId.email',
+        },
+        {
+          label: 'Payment Method',
+          value: 'paymentMethod',
+        },
+        {
+          label: 'Product',
+          value: 'items.productName',
+        },
+        {
+          label: 'Color',
+          value: 'items.color',
+        },
+        {
+          label: 'Quantity',
+          value: 'items.quantity',
+        },
+        {
+          label: 'Ordered On',
+          value: 'createdAt',
+        },
+      ];
+      const transforms = [unwind({ paths: ['customerId'] })];
+      const json2csvParser = new Parser({ fields, transforms });
+      const csv = json2csvParser.parse(orders);
+      fs.writeFileSync('data.csv', csv);
+      res.download('data.csv', 'Sales Report.csv');
+    } catch (error) {
+      console.log(error);
+    }
   },
 };

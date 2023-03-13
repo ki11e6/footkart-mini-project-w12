@@ -6,26 +6,12 @@ fetch('/admin/order-details', {
 })
   .then((response) => response.json())
   .then((response) => {
-    console.log(response + 'orders');
+    console.log(response);
     const label = response.orders.map((item) => {
-      const check = new Date(item.date);
-      const now = new Date();
-      if (
-        check.getFullYear() == now.getFullYear() &&
-        check.getMonth() == now.getMonth()
-      ) {
-        return new Date(item.date).toLocaleDateString('en-GB');
-      }
+      return new Date(item.date).toLocaleDateString('en-GB');
     });
     const data = response.orders.map((item) => {
-      const check = new Date(item.date);
-      const now = new Date();
-      if (
-        check.getFullYear() == now.getFullYear() &&
-        check.getMonth() == now.getMonth()
-      ) {
-        return item.totalSpent;
-      }
+      return item.totalSpent;
     });
 
     new Chart(document.getElementById('saleschart'), {
@@ -34,12 +20,60 @@ fetch('/admin/order-details', {
         labels: label,
         datasets: [
           {
-            label: 'Daily Sales ',
-            data,
+            label: 'Sales Amount ',
+            data: data,
             backgroundColor: 'black',
-            borderColor: 'black',
             borderWidth: 3,
             showLine: 2,
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+        legend: {
+          display: false,
+        },
+      },
+    });
+  });
+
+//
+
+fetch('/admin/order-details', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+  .then((response) => response.json())
+  .then((response) => {
+    console.log(response + 'orders');
+    const label = response.orders.map((item) => {
+      return new Date(item.date).toLocaleDateString('en-GB');
+    });
+    const data = response.orders.map((item) => {
+      return item.quantity;
+    });
+
+    new Chart(document.getElementById('productchart'), {
+      type: 'bar',
+      data: {
+        labels: label,
+        datasets: [
+          {
+            label: 'Quantity',
+            data: data,
+            borderWidth: 1,
+            // backgroundColor: ['#81F18D', '#FFFFFF'],
+            backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+            borderColor: ['rgb(255, 99, 132)'],
           },
         ],
       },

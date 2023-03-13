@@ -7,6 +7,7 @@ const Razorpay = require('razorpay');
 const Payments = require('../models/payment');
 const Categories = require('../models/category');
 const crypto = require('crypto');
+const bannerModel = require('../models/banners');
 
 const Coupons = require('../models/coupon');
 const paypal = require('@paypal/checkout-server-sdk');
@@ -41,8 +42,10 @@ module.exports = {
   },
   getLandingpage: async (req, res) => {
     const products = await Products.find({ isDeleted: false });
-
-    return res.render('landingpage', { products });
+    // const banners = await bannerModel.findOne({}, { sort: { _id: -1 } });
+    const banners = await bannerModel.findOne();
+    console.log(banners);
+    return res.render('landingpage', { products, banners });
   },
   getHomepage: async (req, res) => {
     const products = await Products.find({ isDeleted: false }).populate(
@@ -50,7 +53,8 @@ module.exports = {
     );
     const user = await User.find({ isBlocked: false });
     const category = await Categories.find({ isDeleted: false });
-    return res.render('userhome', { products, user, category });
+    const banners = await bannerModel.findOne();
+    return res.render('userhome', { products, user, category, banners });
   },
   getOtp: (req, res) => {
     return res.render('otp');

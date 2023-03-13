@@ -117,17 +117,14 @@ module.exports = {
             address.push(item);
           }
         });
-        let total = -discount;
-        console.log(total + 'discount');
-        total = total + user.cartTotal;
-        console.log(total + 'cart amount');
+        const total = user.cartTotal - discount;
         const order = new Orders({
           customerId: req.session.user._id,
           address,
           number: user.number,
           totalAmount: total,
           paymentMethod: 'Razorpay',
-          paymentVerified: false,
+          paymentVerified: true,
         });
 
         user.cart.forEach((item) => {
@@ -144,11 +141,34 @@ module.exports = {
           order.items.push(items);
         });
         await order.save();
-
+        //
+        for (const item of user.cart) {
+          const productId = item.productId._id;
+          console.log(productId);
+          const count = item.quantity;
+          console.log(count);
+          await Products.findOneAndUpdate(
+            { _id: productId },
+            { $inc: { totalStoke: -count } }
+          );
+          await User.findOneAndUpdate(
+            { _id: user._id, 'cart.productId': productId },
+            { $set: { cartTotal: 0 } }
+          );
+          await User.findOneAndUpdate(
+            { _id: user._id },
+            { $pull: { cart: { productId } } }
+          );
+        }
+        await User.findOneAndUpdate(
+          { _id: user._id },
+          { $inc: { totalSpent: total - discount } }
+        );
         const instance = new Razorpay({
           key_id: 'rzp_test_kMKu0EZeNbI88S',
           key_secret: '8pflDuNwjLZPkXlk7sIGohgS',
         });
+
         instance.orders.create(
           {
             amount: order.totalAmount * 100,
@@ -162,6 +182,7 @@ module.exports = {
             }
             console.log('order instance created');
             console.log(orderInstance);
+
             return res.json({
               successStatus: true,
               orderInstance,
@@ -169,6 +190,22 @@ module.exports = {
             });
           }
         );
+        //
+        await User.findOneAndUpdate(
+          { _id: req.session.user._id },
+          { $set: { cartTotal: 0 } }
+        );
+
+        await User.findOneAndUpdate(
+          { id: req.session.user.id },
+          { $set: { cart: [] } }
+        );
+
+        await Orders.findOneAndUpdate(
+          { customerId: req.session.user._id },
+          { $set: { paymentVerified: true } }
+        );
+        //
       } catch (err) {
         console.log(err);
         req.session.Errmessage = 'Some error occured please try again later';
@@ -195,19 +232,14 @@ module.exports = {
         address.push(item);
       }
     });
-    let total = -discount;
-    console.log(total + 'discount paypal');
-    total = total + user.cartTotal;
-    console.log(total + 'cart amount paypal');
-
-    console.log(total);
+    const total = user.cartTotal - discount;
     const order = new Orders({
       customerId: req.session.user._id,
       address,
       number: user.number,
       totalAmount: total,
       paymentMethod: 'Paypal',
-      paymentVerified: false,
+      paymentVerified: true,
     });
     let orderid;
 
@@ -227,6 +259,31 @@ module.exports = {
     });
 
     await order.save();
+    //
+    for (const item of user.cart) {
+      const productId = item.productId._id;
+      console.log(productId);
+      const count = item.quantity;
+      console.log(count);
+      await Products.findOneAndUpdate(
+        { _id: productId },
+        { $inc: { totalStoke: -count } }
+      );
+      await User.findOneAndUpdate(
+        { _id: user._id, 'cart.productId': productId },
+        { $set: { cartTotal: 0 } }
+      );
+      await User.findOneAndUpdate(
+        { _id: user._id },
+        { $pull: { cart: { productId } } }
+      );
+    }
+    await User.findOneAndUpdate(
+      { _id: user._id },
+      { $inc: { totalSpent: total - discount } }
+    );
+    //
+
     request.prefer('return=representation');
     request.requestBody({
       intent: 'CAPTURE',
@@ -262,8 +319,16 @@ module.exports = {
         { id: req.session.user.id },
         { $set: { cart: [] } }
       );
+      await Orders.findOneAndUpdate(
+        { customerId: req.session.user._id },
+        { $set: { paymentVerified: true } }
+      );
     } catch (err) {
       console.log(err);
+      //
+      req.session.Errmessage = 'Some error occured please try again later';
+      res.json({ successStatus: false });
+      //
     }
   },
 };
