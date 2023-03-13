@@ -424,17 +424,17 @@ module.exports = {
   },
 
   salesReportPdf: async (req, res) => {
-    const browser = await puppeteer.launch();
-    // const browser = await puppeteer.launch({
-    //   executablePath: '/usr/bin/chromium-browser',
-    // });
-    const page = await browser.newPage();
-    await page.goto('http://localhost:3000/admin/sale-details', {
-      waitUntil: 'networkidle2',
+    // const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      executablePath: '/usr/bin/chromium-browser',
     });
-    // await page.goto('https://footkart.shop/admin/sale-details', {
+    const page = await browser.newPage();
+    // await page.goto('http://localhost:3000/admin/sale-details', {
     //   waitUntil: 'networkidle2',
     // });
+    await page.goto('https://footkart.shop/admin/sale-details', {
+      waitUntil: 'networkidle2',
+    });
     await page.pdf({
       path: 'sales-details.pdf',
       format: 'a4',
